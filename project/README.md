@@ -14,7 +14,8 @@ python cropping.py <input-directory> <output-directory>
 
 One can switch between the next and previous image with the keys `n` and `b` respectively.
 Pressing down the left mouse button starts the cropping area selection. Hold down the button and drag it to the desired position.
-One can crop and save the images pressing the `s` key. Only images where an actual selection was made are cropped and stored.
+
+One can crop and save all images pressing the `s` key. Only images where an actual selection was made are cropped and stored.
 The application can be shut down pressing the `q` key.
 
 ```bash
