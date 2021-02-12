@@ -165,6 +165,9 @@ class Cropper:
         """Tries to crop all images and writes the results to the output directory that was given to the constructor."""
         print('Cropping images and store them to "{}"'.format(self.output_directory))
 
+        # array to store output1 in
+        output1 = [[] for _ in range(len(self.image_paths))]
+
         # iterate over all images
         for index, image_path in enumerate(self.image_paths):
             # retrieve the stored crop area for the current image
@@ -183,14 +186,27 @@ class Cropper:
             output_file_name = os.path.basename(image_path)
             output_full_path = os.path.join(self.output_directory, output_file_name)
 
-            print('Writing cropped image ({0}) to {1}'.format(image_path, output_full_path))
+            # handle case where the file already exist. overwrite it or skip it?
+            if (os.path.exists(output_full_path)):
+                os.remove(output_full_path)
 
-            # TODO: handle non existing directory
+            print('Writing cropped image ({0}) to {1}'.format(image_path, output_full_path))
             
             # write the image to the file system
             cv2.imwrite(output_full_path, cropped_image)
 
-
-            
+            # ---- calculating output 1 ----
+            # your output should be rows of a matrix, the row should be like this:
+            # Output 1:
+            # "object ID" | "image ID/name” | All pixels of the related object 
+            output1[index] = [
+                index,
+                output_file_name,       # the base name of the image file
+                cropped_image.shape,    # since we should flatten the image, we need to store the shape of the image as well, otherwhise it will be hard to retrieve the original image
+                cropped_image.flatten() # we should store all pixels of the image here, so we need a 1-d representation -> flatten
+            ]
+        
+        # just return the output1 for now, I don't know what we should further do with it
+        return output1
 
 
