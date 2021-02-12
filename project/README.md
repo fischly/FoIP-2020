@@ -9,6 +9,10 @@ Download cropper.py and cropping.py and store them inside the same directory - o
 ## Usage
 
 ```bash
+python cropping.py <input-directory> <output-directory>
+```
+
+```bash
 usage: cropping.py [-h] input-directory output-directory
 
 Allows to crop images of a given directory in a fast way, storing the cropped
