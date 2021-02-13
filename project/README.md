@@ -14,14 +14,15 @@ python cropping.py <input-directory> <output-directory>
 
 One can switch between the next and previous image with the keys `n` and `b` respectively.
 Pressing down the left mouse button starts the cropping area selection. Hold down the button and drag it to the desired position.
+After that, a prompt will ask to give a text describing the selected object (annotation). For every box that is made, an annotation MUST be also made.
 
 One can crop and save all images pressing the `s` key. Only images where an actual selection was made are cropped and stored.
-The application can be shut down pressing the `q` key.
+A csv file is also made in the output directory with the annotation data. The application can be shut down pressing the `q` key.
 
 ```bash
 usage: cropping.py [-h] input-directory output-directory
 
-Allows to crop images of a given directory in a fast way, storing the cropped
+Allows to crop and annotate images of a given directory in a fast way, storing the cropped
 images into the given output directory.
 
 positional arguments:
