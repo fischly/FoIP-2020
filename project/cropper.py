@@ -2,6 +2,7 @@
 import cv2
 import math
 import numpy as np
+import pandas as pd
 import os
 
 class Cropper:
@@ -17,6 +18,9 @@ class Cropper:
 
         # stores the cropping area for each of our images
         self.cropping_areas = [{'from': None, 'to': None} for _ in self.image_paths]
+        
+        # stores the annotation text of the oject we crop from each of our images
+        self.annotations = [{'text': None} for _ in self.image_paths]
 
         # load the first image
         self.load_next_image()
@@ -60,7 +64,11 @@ class Cropper:
             # if the s-key is pressed, all images that have been given a cropping area are cropped and stored on the disk
             if (pressed_key is ord('s')):
                 self.crop_all_images()
-                exit(0)
+                
+            # if the q-key is pressed, the app is terminated 
+            if(pressed_key is ord('q')):
+                # Destroy all generated windows
+                cv2.destroyAllWindows()
 
     def on_mouse_event(self, event, x, y, flags, params):
         """Handles all mouse events, like clicks and mouse moves."""
@@ -83,6 +91,12 @@ class Cropper:
             self.is_mouse_down = False
             # update the preview
             self.render_preview()
+            
+            # annotate the desired object 
+            #(!! we MUST write text for every rectangle we draw !!)
+            txt = input("Describe this object by typing one word and press ENTER: ")
+            self.annotations[self.current_image_index]['text'] = txt
+            print("Object Annotated!")
         
         # if we moved our mouse while the mouse was clicked, we are currently specifying a crop area
         # therefore we draw the area between the position where the mouse was pressed down and the current mouse position as a rectangle
@@ -170,20 +184,22 @@ class Cropper:
 
         # iterate over all images
         for index, image_path in enumerate(self.image_paths):
-            # retrieve the stored crop area for the current image
+            # retrieve the stored crop area for the current image & the annotation text
             curr_crop_area = self.cropping_areas[index]
+            annotation = self.annotations[index]
             
             # if there was no complete crop area set for the current image, we skip it 
             if (curr_crop_area['to'] is None or curr_crop_area['from'] is None):
                 print('Skipped image "{}" due to having no crop area specified.'.format(image_path))
                 continue
             
-            # load the image data (TODO: maybe load all images at the start? this would potentially mean a lot of RAM being used, when a directory with many images is selected)
+            # load the image data (one by one)
             curr_image = cv2.imread(image_path)
             cropped_image = curr_image[curr_crop_area['from'][1]:curr_crop_area['to'][1], curr_crop_area['from'][0]:curr_crop_area['to'][0]]
 
-            # parse the last part of the input file and calculate the output path
-            output_file_name = os.path.basename(image_path)
+            # create the name of the new cropped image and calculate the output path
+            base = os.path.splitext(os.path.basename(image_path))[0]
+            output_file_name = base + "_" + annotation['text'] + ".jpg"
             output_full_path = os.path.join(self.output_directory, output_file_name)
 
             # handle case where the file already exist. overwrite it or skip it?
@@ -200,13 +216,25 @@ class Cropper:
             # Output 1:
             # "object ID" | "image ID/name” | All pixels of the related object 
             output1[index] = [
-                index,
+                annotation['text'],     # the annotation text of the cropped object
                 output_file_name,       # the base name of the image file
                 cropped_image.shape,    # since we should flatten the image, we need to store the shape of the image as well, otherwhise it will be hard to retrieve the original image
                 cropped_image.flatten() # we should store all pixels of the image here, so we need a 1-d representation -> flatten
             ]
+            
+        # create a Pandas DataFrame with the annotation details(output1)
+        df = pd.DataFrame(output1)
         
-        # just return the output1 for now, I don't know what we should further do with it
-        return output1
-
-
+        # add column name to the respective columns and remove any empty rows
+        df.columns =['Obj_ID', 'Img_name', 'Img_shape', 'Img_pixels'] 
+        df.loc[df['Obj_ID'].isnull()] = np.NaN
+        df.dropna(how='all', inplace = True)
+        
+        # print the dataframe that is stored in a csv file
+        print("Your csv file contains the following:")
+        print(df)
+        
+        # export the dataframe to a csv file
+        output_csv_file = os.path.join(self.output_directory, 'annotations.csv')
+        df.to_csv(path_or_buf = output_csv_file, index = None, header=True)
+        #return output1
