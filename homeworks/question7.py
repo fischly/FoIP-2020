@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Homeworks - Question 6
+Homeworks - Question 7
 """
 import cv2
 import numpy as np
