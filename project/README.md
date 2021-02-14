@@ -8,7 +8,7 @@ Download cropper.py and cropping.py and store them inside the same directory - o
 
 ## Usage
 
-```bash
+```
 python cropping.py <input-directory> <output-directory>
 ```
 
@@ -19,7 +19,7 @@ After that, a prompt will ask to give a text describing the selected object (ann
 One can crop and save all images pressing the `s` key. Only images where an actual selection was made are cropped and stored.
 A csv file is also made in the output directory with the annotation data. The application can be shut down pressing the `q` key.
 
-```bash
+```
 usage: cropping.py [-h] input-directory output-directory
 
 Allows to crop and annotate images of a given directory in a fast way, storing the cropped
@@ -31,4 +31,5 @@ positional arguments:
 
 optional arguments:
   -h, --help        show this help message and exit
+  -a, --annotate    starts asking for an annotation after each image
 ```
