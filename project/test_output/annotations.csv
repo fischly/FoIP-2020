@@ -1,0 +1,5 @@
+Obj_ID,Img_name,Img_shape,Img_pixels
+lenna_eyes,lenna_lenna_eyes.jpg,"(64, 141, 3)",[ 77  26 104 ... 151 147 215]
+watchtower,lichtenstein_watchtower.jpg,"(153, 91, 3)",[181 100  66 ... 209 124  76]
+rick_eyes,rick_rick_eyes.jpg,"(80, 171, 3)",[ 31  53 124 ... 138 131 164]
+cropper_usage,screenshot_cropper_usage.jpg,"(133, 492, 3)",[23 17 13 ... 23 17 13]
