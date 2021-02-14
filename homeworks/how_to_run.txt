@@ -1,0 +1,2 @@
+Put the images in a folder called imagesHW and put the .py files at the same folder as the imagesHW is.
+Then just run the files and check the plots.
