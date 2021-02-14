@@ -12,17 +12,9 @@ img_orig = cv2.imread('./imagesHW/hw5_insurance_form.JPG')
 img = cv2.cvtColor(img_orig, cv2.COLOR_BGR2RGB)
 img_gray = cv2.cvtColor(img_orig, cv2.COLOR_BGR2GRAY)
 
+
 # --- first do edge detection ---
 edges = cv2.Canny(img_gray, 50, 150, apertureSize = 3)
-
-# fig, axs = plt.subplots(1, 2)
-
-# # fig.set_figheight(15);
-# # fig.set_figwidth(25)
-# axs[0].imshow(img_gray, cmap='gray'); axs[0].set_title('Original'); axs[0].axis('off')
-# axs[1].imshow(edges, cmap='gray'); axs[1].set_title('Canny edge detection'); axs[1].axis('off')
-
-# plt.show()
 
 
 # --- get lines using hough transform ---
@@ -43,18 +35,7 @@ if lines is not None:
         pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
         pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
         cv2.line(img_copy, pt1, pt2, (0,0,255), 3, cv2.LINE_AA)
-        
-#         print('{0} -> {1} with rho = {2}'.format(a, b, theta))
 
-# # draw the lines
-# fig, axs = plt.subplots(1, 2)
-
-# fig.set_figheight(15);
-# fig.set_figwidth(25)
-# axs[0].imshow(img_gray, cmap='gray'); axs[0].set_title('Original'); axs[0].axis('off')
-# axs[1].imshow(img_copy, cmap='gray'); axs[1].set_title('Detected lines with Hough transform'); axs[1].axis('off')
-
-# plt.show()
 
 plt.imshow(img_copy, cmap="gray"); plt.axis('off'); plt.title('Detected lines using Hough transform'); 
 plt.show()
