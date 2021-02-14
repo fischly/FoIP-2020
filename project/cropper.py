@@ -6,15 +6,20 @@ import pandas as pd
 import os
 
 class Cropper:
-    def __init__(self, input_directory, output_directory):
+    def __init__(self, input_directory, output_directory, annotation=False):
         # set the properties of the Cropper class given the argumnents of the constructor
         self.input_directory = input_directory
         self.output_directory = output_directory
+
+        self.annotate = annotation
 
         self.current_image_index = 0
 
         # get all paths of image files in the given directory
         self.image_paths = self.get_all_image_files(self.input_directory)
+        if len(self.image_paths) == 0:
+            print('There are no image files in the directory specified ({0}). Aborting...'.format(input_directory))
+            exit(1)
 
         # stores the cropping area for each of our images
         self.cropping_areas = [{'from': None, 'to': None} for _ in self.image_paths]
@@ -94,9 +99,10 @@ class Cropper:
             
             # annotate the desired object 
             #(!! we MUST write text for every rectangle we draw !!)
-            txt = input("Describe this object by typing one word and press ENTER: ")
-            self.annotations[self.current_image_index]['text'] = txt
-            print("Object Annotated!")
+            if self.annotate:
+                txt = input("Describe this object by typing one word and press ENTER: ")
+                self.annotations[self.current_image_index]['text'] = txt
+                print("Object Annotated!")
         
         # if we moved our mouse while the mouse was clicked, we are currently specifying a crop area
         # therefore we draw the area between the position where the mouse was pressed down and the current mouse position as a rectangle
@@ -198,8 +204,11 @@ class Cropper:
             cropped_image = curr_image[curr_crop_area['from'][1]:curr_crop_area['to'][1], curr_crop_area['from'][0]:curr_crop_area['to'][0]]
 
             # create the name of the new cropped image and calculate the output path
-            base = os.path.splitext(os.path.basename(image_path))[0]
-            output_file_name = base + "_" + annotation['text'] + ".jpg"
+            if annotation['text'] is not None:
+                base = os.path.splitext(os.path.basename(image_path))[0]
+                output_file_name = base + "_" + annotation['text'] + ".jpg"
+            else:
+                output_file_name = os.path.basename(image_path)
             output_full_path = os.path.join(self.output_directory, output_file_name)
 
             # handle case where the file already exist. overwrite it or skip it?
@@ -207,7 +216,7 @@ class Cropper:
                 os.remove(output_full_path)
 
             print('Writing cropped image ({0}) to {1}'.format(image_path, output_full_path))
-            
+            print(output_full_path)
             # write the image to the file system
             cv2.imwrite(output_full_path, cropped_image)
 
@@ -216,25 +225,28 @@ class Cropper:
             # Output 1:
             # "object ID" | "image ID/name” | All pixels of the related object 
             output1[index] = [
-                annotation['text'],     # the annotation text of the cropped object
+                annotation['text'] if annotation['text'] is not None else '-',     # the annotation text of the cropped object
                 output_file_name,       # the base name of the image file
                 cropped_image.shape,    # since we should flatten the image, we need to store the shape of the image as well, otherwhise it will be hard to retrieve the original image
                 cropped_image.flatten() # we should store all pixels of the image here, so we need a 1-d representation -> flatten
             ]
+        
+        if self.annotate:
+            # create a Pandas DataFrame with the annotation details(output1)
+            df = pd.DataFrame(output1)
             
-        # create a Pandas DataFrame with the annotation details(output1)
-        df = pd.DataFrame(output1)
+            # add column name to the respective columns and remove any empty rows
+            df.columns =['Obj_ID', 'Img_name', 'Img_shape', 'Img_pixels'] 
+            df.loc[df['Obj_ID'].isnull()] = np.NaN
+            df.dropna(how='all', inplace = True)
+            
+            # print the dataframe that is stored in a csv file
+            print("Your csv file contains the following:")
+            print(df)
+            
+            # export the dataframe to a csv file
+            output_csv_file = os.path.join(self.output_directory, 'annotations.csv')
+            df.to_csv(path_or_buf = output_csv_file, index = None, header=True)
         
-        # add column name to the respective columns and remove any empty rows
-        df.columns =['Obj_ID', 'Img_name', 'Img_shape', 'Img_pixels'] 
-        df.loc[df['Obj_ID'].isnull()] = np.NaN
-        df.dropna(how='all', inplace = True)
-        
-        # print the dataframe that is stored in a csv file
-        print("Your csv file contains the following:")
-        print(df)
-        
-        # export the dataframe to a csv file
-        output_csv_file = os.path.join(self.output_directory, 'annotations.csv')
-        df.to_csv(path_or_buf = output_csv_file, index = None, header=True)
-        #return output1
+        print('Success!')
+        exit(0)

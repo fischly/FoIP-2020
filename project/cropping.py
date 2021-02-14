@@ -4,10 +4,11 @@ import os
 from cropper import Cropper
 
 if __name__ == "__main__":
-    # use argparse to parse the command line inputs: input directory and output directory
+    # use argparse to parse the command line inputs: input directory, output directory and annotation mode
     parser = argparse.ArgumentParser(description='Allows to crop images of a given directory in a fast way, storing the cropped images into the given output directory.')
     parser.add_argument('in_dir', metavar='input-directory', type=str, nargs=1, help='the directory the images should be read from')
     parser.add_argument('out_dir', metavar='output-directory', type=str, nargs=1, help='the directory the cropped images should be stored at')
+    parser.add_argument('-a', '--annotate', action='store_true', help='starts asking for an annotation after each image')
 
     args = parser.parse_args()
 
@@ -25,7 +26,7 @@ if __name__ == "__main__":
 
 
     # instantiate a new Cropper object and giving the read directories to the ctor
-    c = Cropper(input_dir, output_dir)
+    c = Cropper(input_dir, output_dir, args.annotate)
     # running the Cropper application
     c.run()
 
