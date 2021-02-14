@@ -95,7 +95,7 @@ rotated_cropped = rotated[y-1:y+h, x:x+w]
 # get the edges using canny again
 rotated_cropped_edges = cv2.Canny(rotated_cropped, 50, 150, apertureSize = 3)
 # use hough transform
-lines_2 = cv2.HoughLines(rotated_cropped_edges, 1, np.pi / 180, 255, None, 0, 0) # 255 / 600
+lines_2 = cv2.HoughLines(rotated_cropped_edges, 1, np.pi / 180, 280, None, 0, 0)
 # the resulting image
 result = rotated_cropped.copy()
 
@@ -116,7 +116,7 @@ if lines_2 is not None:
 # draw the result
 fig, axs = plt.subplots(1, 2)
 
-fig.set_figheight(10.80);
+fig.set_figheight(10.80)
 fig.set_figwidth(19.20)
 axs[0].imshow(img_gray, cmap='gray'); axs[0].set_title('Original'); axs[0].axis('off')
 axs[1].imshow(result, cmap='gray'); axs[1].set_title('Resulting image: rotated, cropped and lines restored'); axs[1].axis('off')
@@ -125,4 +125,4 @@ plt.show()
 
 
 # --- finally, save resulted image ---
-plt.imsave('./results/hw5_insurance_form_restored.jpg', result, cmap = 'gray')
+plt.imsave('./results/question5_insurance_form_restored.jpg', result, cmap = 'gray')
